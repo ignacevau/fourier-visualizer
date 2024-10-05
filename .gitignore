@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+
+# PyQt compiled files
+*.pyc
+*.pyo
+
+# MacOS
+.DS_Store
+
+# PyCharm
+.idea/

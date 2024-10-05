@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="windowTitle">
+   <string>Fourier Visualizer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QOpenGLWidget" name="openGLWidget"/>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <!-- Add the FPS Label at the front of the horizontal layout -->
+      <item>
+       <widget class="QLabel" name="labelFPS">
+        <property name="text">
+         <string>FPS: 0.0</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelDepth">
+        <property name="text">
+         <string>Depth:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spinBoxDepth">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+        <property name="value">
+         <number>100</number> <!-- Set default depth to 100 -->
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonTransform">
+        <property name="text">
+         <string>Transform</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelSpeed">
+        <property name="text">
+         <string>Speed:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="spinBoxSpeed">
+        <property name="minimum">
+         <double>0.01</double>
+        </property>
+        <property name="maximum">
+         <double>10.0</double>
+        </property>
+        <property name="value">
+         <double>0.1</double> <!-- Set default speed to 0.1 -->
+        </property>
+        <property name="singleStep">
+         <double>0.01</double>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+       </widget>
+      </item>
+      <!-- Play and Stop buttons -->
+      <item>
+       <widget class="QPushButton" name="buttonPlay">
+        <property name="text">
+         <string>Play</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonStop">
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Follow Drawing Tip Checkbox -->
+      <item>
+       <widget class="QCheckBox" name="checkBoxFollow">
+        <property name="text">
+         <string>Follow Drawing Tip</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Zoom Level Label -->
+      <item>
+       <widget class="QLabel" name="labelZoom">
+        <property name="text">
+         <string>Zoom:</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Zoom Level SpinBox -->
+      <item>
+       <widget class="QDoubleSpinBox" name="spinBoxZoom">
+        <property name="minimum">
+         <double>0.1</double>
+        </property>
+        <property name="maximum">
+         <double>5.0</double>
+        </property>
+        <property name="value">
+         <double>1.0</double>
+        </property>
+        <property name="singleStep">
+         <double>0.1</double>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="enabled">
+         <bool>false</bool> <!-- Disabled until "Follow" is enabled -->
+        </property>
+       </widget>
+      </item>
+      <item>
+    <widget class="QLabel" name="labelTrailLength">
+        <property name="text">
+            <string>Trail Length:</string>
+        </property>
+    </widget>
+</item>
+<item>
+    <widget class="QSpinBox" name="spinBoxTrailLength">
+        <property name="minimum">
+            <number>10</number>
+        </property>
+        <property name="maximum">
+            <number>1000</number>
+        </property>
+        <property name="value">
+            <number>100</number> <!-- Default value -->
+        </property>
+    </widget>
+</item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>400</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionOpenSVG"/>
+    <addaction name="actionLoadExample"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpenSVG">
+   <property name="text">
+    <string>Open SVG...</string>
+   </property>
+  </action>
+  <action name="actionLoadExample">
+   <property name="text">
+    <string>Load Example</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

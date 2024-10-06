@@ -1,6 +1,6 @@
 # Fourier Visualizer
 
-A Python application that uses OpenGL to visualize the Fourier series representation of SVG images using rotating vectors. It allows you to load custom SVG files or examples, compute their Fourier series, and animate the drawing process with adjustable settings and real-time visualization.
+A Python application that uses [Qt6](https://www.qt.io/product/qt6) and [OpenGL](https://registry.khronos.org/OpenGL/index_gl.php) to visualize the Fourier series representation of SVG images using rotating vectors. It allows you to load custom SVG files or examples, compute their Fourier series, and animate the drawing process with adjustable settings and real-time visualization.
 
 ## Table of Contents
 

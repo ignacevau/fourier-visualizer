@@ -16,8 +16,10 @@ class GLWidget(QOpenGLWidget):
         self.term_data = None
         self.margin = 50  # Margin in pixels
         self.background_color = (0.0, 0.0, 0.0, 1.0)  # Black background
-        self.drawing_color = (0.0, 1.0, 0.0)  # Green lines
-        self.speed = 0.1
+        self.drawing_color = (0.1, 0.9, 0.9, 0.25)
+        self.user_speed = 0.1  # Default user speed
+        self.adjusted_speed = self.user_speed  # Adjusted speed based on path length
+        self.total_length = 1.0  # Default total length to avoid division by zero
         self.animation_timer = QTimer()
         self.animation_timer.timeout.connect(self.update_animation)
         self.start_time = time.time()
@@ -30,7 +32,7 @@ class GLWidget(QOpenGLWidget):
         self.last_frame_time = None
         self.trail_points = []  # List to store trail points
         self.max_trail_length = 100  # Maximum number of points in the trail
-        self.trail_color = (1.0, 1.0, 1.0)  # White color for the trail
+        self.trail_color = (0.1, 0.9, 0.9)
         self.drawing_tip_color = (1.0, 1.0, 1.0)  # White color for the drawing tip
 
     def initializeGL(self):
@@ -162,16 +164,32 @@ class GLWidget(QOpenGLWidget):
 
     def compute_scaling(self):
         # Compute the path once to determine scaling
-        t_values = np.linspace(0, 1, 1000)  # Use 1,000 points for performance
-        self.t_values = t_values  # Store t_values for trail calculation
+        t_values = np.linspace(0, 1, 1500)
         fourier_values = np.vectorize(lambda t: self.fourier_series_function(t))(
             t_values
         )
         self.path_x = fourier_values.real
         self.path_y = fourier_values.imag
+
+        # Calculate cumulative path length
+        dx = np.diff(self.path_x)
+        dy = np.diff(self.path_y)
+        segment_lengths = np.hypot(dx, dy)
+        self.cumulative_lengths = np.concatenate(([0], np.cumsum(segment_lengths)))
+        self.total_length = self.cumulative_lengths[-1]
+
         self.scaled_x, self.scaled_y = self.scale_and_translate(
             self.path_x, self.path_y
         )
+
+        # Adjust speed based on path length
+        self.adjust_speed_based_on_length()
+
+    def adjust_speed_based_on_length(self):
+        if self.total_length > 0.001:  # Avoid division by zero or tiny lengths
+            self.adjusted_speed = self.user_speed / self.total_length
+        else:
+            self.adjusted_speed = self.user_speed  # Use user speed directly
 
     def draw_fourier_drawing(self):
         glPushMatrix()
@@ -182,12 +200,20 @@ class GLWidget(QOpenGLWidget):
             glTranslatef(translate_x, translate_y, 0.0)
             glScalef(self.zoom_level, self.zoom_level, 1.0)
 
-        glColor3f(*self.drawing_color)
+        # Enable blending for opacity
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        glColor4f(*self.drawing_color)
+
         glLineWidth(1.0)
         glBegin(GL_LINE_STRIP)
         for x, y in zip(self.scaled_x, self.scaled_y):
             glVertex2f(x, y)
         glEnd()
+
+        glDisable(GL_BLEND)
+
         glPopMatrix()
 
     def get_current_tip_position(self):
@@ -211,6 +237,11 @@ class GLWidget(QOpenGLWidget):
 
     def draw_rotating_vectors(self):
         glPushMatrix()
+
+        # Enable blending
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
         if self.follow_mode:
             # Apply the same translation and scaling as in draw_fourier_drawing
             tip_x, tip_y = self.get_current_tip_position()
@@ -220,7 +251,8 @@ class GLWidget(QOpenGLWidget):
             glScalef(self.zoom_level, self.zoom_level, 1.0)
             glLineWidth(1.0)
 
-        glColor3f(1.0, 1.0, 1.0)  # White color for vectors
+        # Base color for vectors
+        base_color = (1.0, 1.0, 1.0)
 
         # Use the center of the Fourier drawing as the starting position
         x_pos, y_pos = self.drawing_center
@@ -228,6 +260,11 @@ class GLWidget(QOpenGLWidget):
         # Sort terms by increasing absolute value of k (frequency)
         terms = [term for term in self.term_data if term["k"] != 0]
         terms.sort(key=lambda term: abs(term["k"]))
+
+        # Define number of passes for blending (more passes = smoother lines)
+        num_passes = 1
+        alpha_decrement = 1.0 / num_passes
+        width_increment = 2.0 / num_passes
 
         for term in terms:
             k = term["k"]
@@ -246,17 +283,30 @@ class GLWidget(QOpenGLWidget):
 
             # Calculate magnitude for line width and arrow size
             magnitude = np.hypot(scaled_vector_x, scaled_vector_y)
-            line_width = min(2, max(0.2, magnitude / 90))
+            line_width = min(1.5, max(0.3, magnitude / 20))
             arrow_size = min(20, max(0.4, magnitude / 20))
 
-            glLineWidth(line_width)
-            glBegin(GL_LINES)
-            glVertex2f(x_pos, y_pos)
-            glVertex2f(end_x, end_y)
-            glEnd()
+            for pass_num in range(num_passes):
+                # Adjust alpha and color for each pass
+                alpha_value = 1.0 - pass_num * alpha_decrement
+                line_width += pass_num * width_increment * line_width
+                glColor4f(base_color[0], base_color[1], base_color[2], alpha_value)
 
-            # Draw arrowhead
-            self.draw_arrowhead(x_pos, y_pos, end_x, end_y, arrow_size)
+                # Draw the vector with the calculated offset
+                glLineWidth(line_width)
+                glBegin(GL_LINES)
+                glVertex2f(x_pos, y_pos)
+                glVertex2f(end_x, end_y)
+                glEnd()
+
+                # Draw arrowhead for each pass
+                self.draw_arrowhead(
+                    x_pos,
+                    y_pos,
+                    end_x,
+                    end_y,
+                    arrow_size,
+                )
 
             # Update position for next vector
             x_pos = end_x
@@ -268,6 +318,9 @@ class GLWidget(QOpenGLWidget):
         glBegin(GL_POINTS)
         glVertex2f(x_pos, y_pos)
         glEnd()
+
+        # Disable blending and restore the matrix
+        glDisable(GL_BLEND)
         glPopMatrix()
 
     def scale_vector(self, x, y):
@@ -297,21 +350,26 @@ class GLWidget(QOpenGLWidget):
 
     def update_animation(self):
         if self.is_animating:
-            self.current_time = (time.time() - self.start_time) * self.speed
+            elapsed_time = time.time() - self.start_time
+
+            # Ensure current_time stays within [0,1]
+            self.current_time = (elapsed_time * self.adjusted_speed) % 1.0
             self.update()
 
     def set_term_data(self, term_data, fourier_series_function):
         self.term_data = term_data
         self.fourier_series_function = fourier_series_function
         self.compute_scaling()
+        self.start_time = time.time()  # Reset animation time
         self.update()
 
     def set_speed(self, speed):
-        self.speed = speed
+        self.user_speed = speed  # Store user-provided speed
+        self.adjust_speed_based_on_length()
 
     def start_animation(self):
         self.is_animating = True
-        self.start_time = time.time() - self.current_time / self.speed
+        self.start_time = time.time() - self.current_time / self.adjusted_speed
 
     def stop_animation(self):
         self.is_animating = False

@@ -57,16 +57,16 @@
       <item>
        <widget class="QDoubleSpinBox" name="spinBoxSpeed">
         <property name="minimum">
-         <double>0.01</double>
+         <double>1.0</double>
         </property>
         <property name="maximum">
-         <double>10.0</double>
+         <double>100.0</double>
         </property>
         <property name="value">
-         <double>0.1</double> <!-- Set default speed to 0.1 -->
+         <double>10.0</double> <!-- Set default speed to 10.0 -->
         </property>
         <property name="singleStep">
-         <double>0.01</double>
+         <double>1.0</double>
         </property>
         <property name="decimals">
          <number>2</number>
@@ -108,16 +108,16 @@
       <item>
        <widget class="QDoubleSpinBox" name="spinBoxZoom">
         <property name="minimum">
-         <double>0.1</double>
+         <double>1</double>
         </property>
         <property name="maximum">
-         <double>5.0</double>
+         <double>100.0</double>
         </property>
         <property name="value">
          <double>1.0</double>
         </property>
         <property name="singleStep">
-         <double>0.1</double>
+         <double>0.5</double>
         </property>
         <property name="decimals">
          <number>1</number>

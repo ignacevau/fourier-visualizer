@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="windowTitle">
+   <string>Settings</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <!-- Visualization Options Group -->
+   <item>
+    <widget class="QGroupBox" name="groupBoxVisualization">
+     <property name="title">
+      <string>Visualization Options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutVisualization">
+      <!-- Show Fourier Drawing Preview -->
+      <item>
+       <widget class="QCheckBox" name="checkBoxShowFourierPreview">
+        <property name="text">
+         <string>Show Fourier Drawing Preview</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Fourier Drawing Preview Color and Opacity -->
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutFourierColor">
+        <item>
+         <widget class="QLabel" name="labelFourierColor">
+          <property name="text">
+           <string>Fourier Preview Color:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="buttonFourierColor">
+          <property name="text">
+           <string>Select Color</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelFourierOpacity">
+          <property name="text">
+           <string>Opacity:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSlider" name="sliderFourierOpacity">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="minimum">
+           <number>0</number>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>25</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelFourierOpacityValue">
+          <property name="text">
+           <string>25%</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <!-- Show Drawing Tip Trail -->
+      <item>
+       <widget class="QCheckBox" name="checkBoxShowTrail">
+        <property name="text">
+         <string>Show Drawing Tip Trail</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Drawing Tip Trail Color -->
+      <item>
+        <layout class="QHBoxLayout" name="horizontalLayoutTrailColor">
+        <item>
+        <widget class="QLabel" name="labelTrailColor">
+            <property name="text">
+            <string>Trail Color:</string>
+            </property>
+        </widget>
+        </item>
+        <item>
+        <widget class="QPushButton" name="buttonTrailColor">
+            <property name="text">
+            <string>Select Color</string>
+            </property>
+        </widget>
+        </item>
+        <item>
+        <widget class="QLabel" name="labelTrailWidth">
+            <property name="text">
+            <string>Width:</string>
+            </property>
+        </widget>
+        </item>
+        <!-- Change QSpinBox to QDoubleSpinBox -->
+        <item>
+        <widget class="QDoubleSpinBox" name="spinBoxTrailWidth">
+            <property name="minimum">
+            <double>0.1</double>
+            </property>
+            <property name="maximum">
+            <double>10.0</double>
+            </property>
+            <property name="value">
+            <double>2.0</double>
+            </property>
+            <property name="singleStep">
+            <double>0.1</double>
+            </property>
+            <property name="decimals">
+            <number>1</number>
+            </property>
+        </widget>
+        </item>
+        <item>
+        <widget class="QLabel" name="labelTrailWidthPx">
+            <property name="text">
+            <string>px</string>
+            </property>
+        </widget>
+        </item>
+        </layout>
+        </item>
+     </layout>
+    </widget>
+   </item>
+   <!-- Anti-Aliasing Group -->
+   <item>
+    <widget class="QGroupBox" name="groupBoxAntiAliasing">
+     <property name="title">
+      <string>Anti-Aliasing</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayoutAntiAliasing">
+      <item>
+       <widget class="QLabel" name="labelAntiAliasingPasses">
+        <property name="text">
+         <string>Number of Passes:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spinBoxAntiAliasingPasses">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <!-- Appearance Settings Group -->
+   <item>
+    <widget class="QGroupBox" name="groupBoxAppearance">
+     <property name="title">
+      <string>Appearance Settings</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayoutBackgroundColor">
+      <item>
+       <widget class="QLabel" name="labelBackgroundColor">
+        <property name="text">
+         <string>Background Color:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="buttonBackgroundColor">
+        <property name="text">
+         <string>Select Color</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <!-- Arrow Settings Group -->
+   <item>
+    <widget class="QGroupBox" name="groupBoxArrowSettings">
+     <property name="title">
+      <string>Arrow Settings</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutArrowSettings">
+      <!-- Arrow Head Size -->
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutArrowHeadSize">
+        <item>
+         <widget class="QLabel" name="labelArrowHeadSize">
+          <property name="text">
+           <string>Arrow Head Size:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowHeadMinSize">
+          <property name="text">
+           <string>Min:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxArrowHeadMinSize">
+          <property name="minimum">
+           <double>0.1</double>
+          </property>
+          <property name="maximum">
+           <double>50.0</double>
+          </property>
+          <property name="value">
+           <double>0.4</double>
+          </property>
+          <property name="singleStep">
+           <double>0.1</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowHeadMaxSize">
+          <property name="text">
+           <string>Max:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxArrowHeadMaxSize">
+          <property name="minimum">
+           <double>1.0</double>
+          </property>
+          <property name="maximum">
+           <double>50.0</double>
+          </property>
+          <property name="value">
+           <double>20.0</double>
+          </property>
+          <property name="singleStep">
+           <double>0.1</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowHeadSizePx">
+          <property name="text">
+           <string>px</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <!-- Arrow Line Width -->
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutArrowLineWidth">
+        <item>
+         <widget class="QLabel" name="labelArrowLineWidth">
+          <property name="text">
+           <string>Arrow Line Width:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowLineMinWidth">
+          <property name="text">
+           <string>Min:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxArrowLineMinWidth">
+          <property name="minimum">
+           <double>0.1</double>
+          </property>
+          <property name="maximum">
+           <double>5.0</double>
+          </property>
+          <property name="value">
+           <double>0.3</double>
+          </property>
+          <property name="singleStep">
+           <double>0.1</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowLineMaxWidth">
+          <property name="text">
+           <string>Max:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBoxArrowLineMaxWidth">
+          <property name="minimum">
+           <double>0.5</double>
+          </property>
+          <property name="maximum">
+           <double>5.0</double>
+          </property>
+          <property name="value">
+           <double>1.5</double>
+          </property>
+          <property name="singleStep">
+           <double>0.1</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelArrowLineWidthPx">
+          <property name="text">
+           <string>px</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <!-- Dialog Buttons -->
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutButtons">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <!-- Corrected Spacer Definition -->
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <!-- Dialog Buttons -->
+     <item>
+      <widget class="QPushButton" name="buttonCancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonApply">
+       <property name="text">
+        <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="buttonOK">
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

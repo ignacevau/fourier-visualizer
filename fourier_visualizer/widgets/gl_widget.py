@@ -15,8 +15,20 @@ class GLWidget(QOpenGLWidget):
         super().__init__(parent)
         self.term_data = None
         self.margin = 50  # Margin in pixels
+        # Default settings
         self.background_color = (0.0, 0.0, 0.0, 1.0)  # Black background
-        self.drawing_color = (0.1, 0.9, 0.9, 0.25)
+        self.show_fourier_preview = True
+        self.fourier_preview_color = (0.1, 0.9, 0.9, 0.25)
+        self.fourier_preview_opacity = 0.25
+        self.show_drawing_tip_trail = True
+        self.drawing_tip_trail_color = (0.1, 0.9, 0.9)
+        self.drawing_tip_trail_width = 2.0
+        self.num_anti_aliasing_passes = 1
+        self.arrow_head_max_size = 20.0
+        self.arrow_head_min_size = 0.4
+        self.arrow_line_max_width = 1.5
+        self.arrow_line_min_width = 0.3
+
         self.user_speed = 0.1  # Default user speed
         self.adjusted_speed = self.user_speed  # Adjusted speed based on path length
         self.total_length = 1.0  # Default total length to avoid division by zero
@@ -32,7 +44,6 @@ class GLWidget(QOpenGLWidget):
         self.last_frame_time = None
         self.trail_points = []  # List to store trail points
         self.max_trail_length = 100  # Maximum number of points in the trail
-        self.trail_color = (0.1, 0.9, 0.9)
         self.drawing_tip_color = (1.0, 1.0, 1.0)  # White color for the drawing tip
 
     def initializeGL(self):
@@ -57,18 +68,22 @@ class GLWidget(QOpenGLWidget):
         self.update()
 
     def paintGL(self):
+        glClearColor(*self.background_color)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         if self.term_data is None:
             return
 
         # Update trail with current tip position
-        self.update_trail()
+        if self.show_drawing_tip_trail:
+            self.update_trail()
 
         # Draw the Fourier drawing first
-        self.draw_fourier_drawing()
+        if self.show_fourier_preview:
+            self.draw_fourier_drawing()
 
         # Draw the trail before drawing the tip
-        self.draw_trail()
+        if self.show_drawing_tip_trail:
+            self.draw_trail()
 
         # Draw the rotating vectors (arrows)
         self.draw_rotating_vectors()
@@ -107,13 +122,13 @@ class GLWidget(QOpenGLWidget):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        glLineWidth(2.0)
+        glLineWidth(self.drawing_tip_trail_width)
         glBegin(GL_LINE_STRIP)
         num_points = len(self.trail_points)
         for i, (x, y) in enumerate(self.trail_points):
             # Calculate opacity from 0.9 (90%) to 0.0
             alpha = 0.9 * (1.0 - (i / (num_points - 1))) if num_points > 1 else 0.9
-            glColor4f(*self.trail_color, alpha)
+            glColor4f(*self.drawing_tip_trail_color, alpha)
             glVertex2f(x, y)
         glEnd()
 
@@ -204,7 +219,7 @@ class GLWidget(QOpenGLWidget):
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        glColor4f(*self.drawing_color)
+        glColor4f(*self.fourier_preview_color)
 
         glLineWidth(1.0)
         glBegin(GL_LINE_STRIP)
@@ -249,7 +264,6 @@ class GLWidget(QOpenGLWidget):
             translate_y = self.height() / 2 - tip_y * self.zoom_level
             glTranslatef(translate_x, translate_y, 0.0)
             glScalef(self.zoom_level, self.zoom_level, 1.0)
-            glLineWidth(1.0)
 
         # Base color for vectors
         base_color = (1.0, 1.0, 1.0)
@@ -262,7 +276,7 @@ class GLWidget(QOpenGLWidget):
         terms.sort(key=lambda term: abs(term["k"]))
 
         # Define number of passes for blending (more passes = smoother lines)
-        num_passes = 1
+        num_passes = self.num_anti_aliasing_passes
         alpha_decrement = 1.0 / num_passes
         width_increment = 2.0 / num_passes
 
@@ -283,30 +297,35 @@ class GLWidget(QOpenGLWidget):
 
             # Calculate magnitude for line width and arrow size
             magnitude = np.hypot(scaled_vector_x, scaled_vector_y)
-            line_width = min(1.5, max(0.3, magnitude / 20))
-            arrow_size = min(20, max(0.4, magnitude / 20))
+            line_width = min(
+                self.arrow_line_max_width,
+                max(self.arrow_line_min_width, magnitude / 20),
+            )
+            arrow_size = min(
+                self.arrow_head_max_size,
+                max(self.arrow_head_min_size, magnitude / 20),
+            )
 
             for pass_num in range(num_passes):
                 # Adjust alpha and color for each pass
                 alpha_value = 1.0 - pass_num * alpha_decrement
-                line_width += pass_num * width_increment * line_width
                 glColor4f(base_color[0], base_color[1], base_color[2], alpha_value)
 
                 # Draw the vector with the calculated offset
-                glLineWidth(line_width)
+                glLineWidth(line_width + pass_num * width_increment)
                 glBegin(GL_LINES)
                 glVertex2f(x_pos, y_pos)
                 glVertex2f(end_x, end_y)
                 glEnd()
 
-                # Draw arrowhead for each pass
-                self.draw_arrowhead(
-                    x_pos,
-                    y_pos,
-                    end_x,
-                    end_y,
-                    arrow_size,
-                )
+            # Draw arrowhead without anti-aliasing
+            self.draw_arrowhead(
+                x_pos,
+                y_pos,
+                end_x,
+                end_y,
+                arrow_size,
+            )
 
             # Update position for next vector
             x_pos = end_x
@@ -343,6 +362,7 @@ class GLWidget(QOpenGLWidget):
         right_y = y_end - size * np.sin(right_angle)
 
         glBegin(GL_TRIANGLES)
+        glColor3f(1.0, 1.0, 1.0)
         glVertex2f(x_end, y_end)
         glVertex2f(left_x, left_y)
         glVertex2f(right_x, right_y)

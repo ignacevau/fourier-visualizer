@@ -9,6 +9,7 @@ build/
 # Virtual environment
 venv/
 .venv/
+.python-version
 
 # PyQt compiled files
 *.pyc

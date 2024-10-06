@@ -8,6 +8,7 @@ build/
 
 # Virtual environment
 venv/
+.venv/
 
 # PyQt compiled files
 *.pyc
@@ -16,5 +17,6 @@ venv/
 # MacOS
 .DS_Store
 
-# PyCharm
+# IDE
 .idea/
+.vscode/

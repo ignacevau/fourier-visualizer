@@ -1,0 +1,14 @@
+{
+    "show_fourier_preview": true,
+    "fourier_preview_color": "#19e5e5",
+    "fourier_preview_opacity": 100,
+    "show_drawing_tip_trail": true,
+    "drawing_tip_trail_color": "#00fcff",
+    "drawing_tip_trail_width": 10.0,
+    "num_anti_aliasing_passes": 2,
+    "background_color": "#0094ad",
+    "arrow_head_min_size": 0.1,
+    "arrow_head_max_size": 20.0,
+    "arrow_line_min_width": 1.5000000000000002,
+    "arrow_line_max_width": 2.0
+}

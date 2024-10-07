@@ -1,0 +1,17 @@
+{
+    "show_fourier_preview": true,
+    "fourier_preview_color": "#00fcff",
+    "fourier_preview_opacity": 75,
+    "show_drawing_tip_trail": true,
+    "drawing_tip_trail_color": "#00fcff",
+    "drawing_tip_trail_width": 10.0,
+    "num_anti_aliasing_passes": 1,
+    "background_color": "#00617d",
+    "arrow_color": "#ffffff",
+    "arrow_head_max_size": 15.0,
+    "arrow_line_max_width": 2.0,
+    "arrow_head_base_size": 5.0,
+    "arrow_head_scaling_factor": 15.0,
+    "arrow_line_base_width": 1.0,
+    "arrow_line_scaling_factor": 5.0
+}

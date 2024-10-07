@@ -225,6 +225,41 @@
                                 </property>
                             </spacer>
                         </item>
+                        <!-- Add a horizontal spacer -->
+                        <item>
+                            <spacer name="horizontalSpacer3">
+                                <property name="orientation">
+                                    <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </item>
+                        <!-- Group 5: Extra Controls -->
+                        <item>
+                            <layout class="QHBoxLayout" name="horizontalLayoutExtraControls">
+                                <!-- Reset View Button -->
+                                <item>
+                                    <widget class="QPushButton" name="buttonResetView">
+                                        <property name="text">
+                                            <string>Reset View</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <!-- Open Settings Button -->
+                                <item>
+                                    <widget class="QPushButton" name="buttonOpenSettings">
+                                        <property name="text">
+                                            <string>Settings</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </item>
                     </layout>
                 </item>
             </layout>

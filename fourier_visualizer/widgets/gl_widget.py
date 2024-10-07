@@ -24,10 +24,16 @@ class GLWidget(QOpenGLWidget):
         self.drawing_tip_trail_color = (0.1, 0.9, 0.9)
         self.drawing_tip_trail_width = 2.0
         self.num_anti_aliasing_passes = 1
-        self.arrow_head_max_size = 20.0
-        self.arrow_head_min_size = 0.4
-        self.arrow_line_max_width = 1.5
-        self.arrow_line_min_width = 0.3
+        # Arrow settings
+        self.arrow_color = (1.0, 1.0, 1.0, 1.0)
+        self.arrow_head_max_size = 10.0
+        self.arrow_line_max_width = 5.0
+
+        self.arrow_head_base_size = 2.0
+        self.arrow_head_scaling_factor = 1.0
+        self.arrow_line_base_width = 1.0
+        self.arrow_line_scaling_factor = 1.0
+        self.arrow_cap_type_index = 0  # 0: Normal Arrow Head, 1: No Arrow Cap, 2: Dot
 
         self.user_speed = 0.1  # Default user speed
         self.adjusted_speed = self.user_speed  # Adjusted speed based on path length
@@ -38,17 +44,17 @@ class GLWidget(QOpenGLWidget):
         self.current_time = 0
         self.scale_factor = 1.0
         self.drawing_center = (0, 0)
-        self.is_animating = True
+        self.is_animating = False
         self.follow_mode = False
         self.zoom_level = 1.0
         self.last_frame_time = None
         self.trail_points = []  # List to store trail points
         self.max_trail_length = 100  # Maximum number of points in the trail
-        self.drawing_tip_color = (1.0, 1.0, 1.0)  # White color for the drawing tip
 
     def initializeGL(self):
         glClearColor(*self.background_color)
         glEnable(GL_LINE_SMOOTH)
+        glEnable(GL_POINT_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -265,9 +271,6 @@ class GLWidget(QOpenGLWidget):
             glTranslatef(translate_x, translate_y, 0.0)
             glScalef(self.zoom_level, self.zoom_level, 1.0)
 
-        # Base color for vectors
-        base_color = (1.0, 1.0, 1.0)
-
         # Use the center of the Fourier drawing as the starting position
         x_pos, y_pos = self.drawing_center
 
@@ -280,7 +283,7 @@ class GLWidget(QOpenGLWidget):
         alpha_decrement = 1.0 / num_passes
         width_increment = 2.0 / num_passes
 
-        for term in terms:
+        for i, term in enumerate(terms):
             k = term["k"]
             c = term["c"]
             freq = 2 * np.pi * k
@@ -295,21 +298,36 @@ class GLWidget(QOpenGLWidget):
             end_x = x_pos + scaled_vector_x
             end_y = y_pos + scaled_vector_y
 
-            # Calculate magnitude for line width and arrow size
+            zoom_level = self.zoom_level if self.follow_mode else 1.0
+
+            # Calculate magnitude for scaling
             magnitude = np.hypot(scaled_vector_x, scaled_vector_y)
-            line_width = min(
-                self.arrow_line_max_width,
-                max(self.arrow_line_min_width, magnitude / 20),
+            line_width = (
+                self.arrow_line_base_width / zoom_level
+                + self.arrow_line_scaling_factor * magnitude / 100
             )
-            arrow_size = min(
-                self.arrow_head_max_size,
-                max(self.arrow_head_min_size, magnitude / 20),
+            arrow_head_size = (
+                self.arrow_head_base_size / zoom_level
+                + self.arrow_head_scaling_factor * magnitude / 100
             )
 
+            # Ensure line width and arrow size are within reasonable bounds
+            line_width = min(self.arrow_line_max_width, line_width)
+            arrow_head_size = min(self.arrow_head_max_size, arrow_head_size)
+
+            # Adjust the line width and arrow size based on zoom level
+            line_width *= zoom_level
+
+            # Draw the vector line
             for pass_num in range(num_passes):
                 # Adjust alpha and color for each pass
                 alpha_value = 1.0 - pass_num * alpha_decrement
-                glColor4f(base_color[0], base_color[1], base_color[2], alpha_value)
+                glColor4f(
+                    self.arrow_color[0],
+                    self.arrow_color[1],
+                    self.arrow_color[2],
+                    alpha_value,
+                )
 
                 # Draw the vector with the calculated offset
                 glLineWidth(line_width + pass_num * width_increment)
@@ -318,25 +336,32 @@ class GLWidget(QOpenGLWidget):
                 glVertex2f(end_x, end_y)
                 glEnd()
 
-            # Draw arrowhead without anti-aliasing
-            self.draw_arrowhead(
-                x_pos,
-                y_pos,
-                end_x,
-                end_y,
-                arrow_size,
-            )
+            # Draw arrow cap based on type
+            if self.arrow_cap_type_index == 0:
+                # Normal Arrow Head
+                self.draw_arrowhead(
+                    x_pos,
+                    y_pos,
+                    end_x,
+                    end_y,
+                    arrow_head_size,
+                    self.arrow_color,
+                )
+            elif self.arrow_cap_type_index == 1:
+                # No Arrow Cap
+                pass  # Do nothing
+            elif self.arrow_cap_type_index == 2:
+                # Dot
+                self.draw_dot(
+                    end_x,
+                    end_y,
+                    arrow_head_size * zoom_level,
+                    self.arrow_color,
+                )
 
             # Update position for next vector
             x_pos = end_x
             y_pos = end_y
-
-        # Draw the drawing tip as a small white circle
-        glPointSize(5.0)
-        glColor3f(*self.drawing_tip_color)
-        glBegin(GL_POINTS)
-        glVertex2f(x_pos, y_pos)
-        glEnd()
 
         # Disable blending and restore the matrix
         glDisable(GL_BLEND)
@@ -348,7 +373,15 @@ class GLWidget(QOpenGLWidget):
         y_scaled = y * self.scale_factor
         return x_scaled, y_scaled
 
-    def draw_arrowhead(self, x_start, y_start, x_end, y_end, size):
+    def draw_arrowhead(
+        self,
+        x_start,
+        y_start,
+        x_end,
+        y_end,
+        size,
+        color: tuple[float, float, float],
+    ):
         dx = x_end - x_start
         dy = y_end - y_start
         angle = np.arctan2(dy, dx)
@@ -361,11 +394,23 @@ class GLWidget(QOpenGLWidget):
         right_x = x_end - size * np.cos(right_angle)
         right_y = y_end - size * np.sin(right_angle)
 
+        # Shift the arrow head slightly to make a cleaner connection
+        shift_factor = 0.10  # Shift by 10% of the arrow head
+        shift_x = size * np.cos(angle) * shift_factor
+        shift_y = size * np.sin(angle) * shift_factor
+
         glBegin(GL_TRIANGLES)
-        glColor3f(1.0, 1.0, 1.0)
-        glVertex2f(x_end, y_end)
-        glVertex2f(left_x, left_y)
-        glVertex2f(right_x, right_y)
+        glColor4f(*color)
+        glVertex2f(x_end + shift_x, y_end + shift_y)
+        glVertex2f(left_x + shift_x, left_y + shift_y)
+        glVertex2f(right_x + shift_x, right_y + shift_y)
+        glEnd()
+
+    def draw_dot(self, x, y, size, color: tuple[float, float, float]):
+        glPointSize(size)
+        glBegin(GL_POINTS)
+        glColor4f(*color)
+        glVertex2f(x, y)
         glEnd()
 
     def update_animation(self):

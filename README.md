@@ -25,9 +25,10 @@ A Python application that uses [Qt6](https://www.qt.io/product/qt6) and [OpenGL]
 
 ## Demo
 
-![Fourier Visualizer Demo](assets/demo.gif)
-
-*TODO: Add some GIFs or images showcasing the application.*
+![Demo 1](assets/demo1.gif)
+![Demo 2](assets/demo2.gif)
+![Demo 3](assets/demo3.gif)
+![Demo 4](assets/demo4.gif)
 
 ## Installation
 
